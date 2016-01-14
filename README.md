@@ -2,6 +2,23 @@
 
 Provide syntax sugar on top of [organic-plasma](https://github.com/outbounder/organic-plasma) implementations with feedback support.
 
+## usage
+
+```
+var Plasma = require('organic-plasma')
+var PlasmaWithFeedback = require('organic-plasma-alchemy')(Plasma)
+
+var plasma = new PlasmaWithFeedback()
+plasma.on('chemical1', function (c, callback) {
+  // do work
+  callback(err, {success: true})
+})
+
+plasma.emit('chemical1', function (err, result) {
+  // result.success === true
+})
+```
+
 ## API
 
 All results from reactions (either callback invoke or returned promise) are delivered as chemicals via plasma having the following signature:
