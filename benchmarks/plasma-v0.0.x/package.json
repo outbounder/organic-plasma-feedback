@@ -1,0 +1,6 @@
+{
+  "name": "benchmark-plasma-v0.0.x",
+  "devDependencies": {
+    "organic-plasma": "~0.0.x"
+  }
+}

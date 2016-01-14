@@ -1,25 +1,21 @@
-module.exports = function (Plasma) {
-  var plasmaOn = Plasma.prototype.on
-  var plasmaEmit = Plasma.prototype.emit
-  var PlasmaAlchemy = function () {
-    Plasma.call(this)
-  }
-  PlasmaAlchemy.prototype = new Plasma
+module.exports = function (plasma) {
+  var plasmaWithFeedback = {}
+  for (var key in plasma)
+    plasmaWithFeedback[key] = plasma[key]
 
-  PlasmaAlchemy.prototype.on = function (pattern, handler, context, once) {
+  plasmaWithFeedback.on = function (pattern, handler, context, once) {
     if(Array.isArray(pattern)) {
-      return plasmaOn.call(this, pattern, handler, context, once)
+      return plasma.on.call(plasma, pattern, handler, context, once)
     }
     if (typeof pattern == "string")
       pattern = {type: pattern}
 
     var reactionFn = handler
-    var self = this
     if (handler.length === 2) { // has callback
       reactionFn = function (c) {
         var chemicalType = c.type
-        handler(c, function (err, result) {
-          plasmaEmit.call(self, {
+        handler.call(context, c, function (err, result) {
+          plasma.emit.call(plasma, {
             type: chemicalType+'result',
             err: err,
             result: result
@@ -29,17 +25,17 @@ module.exports = function (Plasma) {
     } else {
       reactionFn = function (c) {
         var chemicalType = c.type
-        var promise = handler(c)
+        var promise = handler.call(context, c)
         if (promise instanceof Promise) {
           promise.then(function (result) {
-            plasmaEmit.call(self, {
+            plasma.emit.call(plasma, {
               type: chemicalType+'result',
               err: null,
               result: result
             })
           })
           promise.catch(function (err) {
-            plasmaEmit.call(self, {
+            plasma.emit.call(plasma, {
               type: chemicalType+'result',
               err: err,
               result: null
@@ -48,18 +44,19 @@ module.exports = function (Plasma) {
         }
       }
     }
-    plasmaOn.call(this, pattern, reactionFn, context, once)
+
+    plasma.on.call(plasma, pattern, reactionFn, undefined, once)
   }
 
-  PlasmaAlchemy.prototype.emit = function (chemical, callback) {
+  plasmaWithFeedback.emit = function (chemical, callback) {
     if(typeof chemical == "string")
       chemical = {type: chemical}
 
     if (callback) {
-      plasmaOn.call(this, chemical.type+'result', function (c) {
+      plasma.on.call(plasma, chemical.type+'result', function (c) {
         callback(c.err, c.result)
       }, undefined, true)
-      plasmaEmit.call(this, chemical)
+      plasma.emit.call(plasma, chemical)
     } else {
       var promiseResolve
       var promiseReject
@@ -67,14 +64,14 @@ module.exports = function (Plasma) {
         promiseResolve = resolve
         promiseReject = reject
       })
-      plasmaOn.call(this, chemical.type+'result', function (c) {
+      plasma.on.call(plasma, chemical.type+'result', function (c) {
         if (c.err) return promiseReject(c.err)
         promiseResolve(c.result)
       }, undefined, true)
-      plasmaEmit.call(this, chemical)
+      plasma.emit.call(plasma, chemical)
       return p
     }
   }
 
-  return PlasmaAlchemy
+  return plasmaWithFeedback
 }

@@ -1,4 +1,4 @@
-# organic-plasma-alchemy
+# organic-plasma-feedback
 
 Provide syntax sugar on top of [organic-plasma](https://github.com/outbounder/organic-plasma) implementations with feedback support.
 
@@ -6,9 +6,8 @@ Provide syntax sugar on top of [organic-plasma](https://github.com/outbounder/or
 
 ```
 var Plasma = require('organic-plasma')
-var PlasmaWithFeedback = require('organic-plasma-alchemy')(Plasma)
+var plasma = require('organic-plasma-feedback")(new Plasma())
 
-var plasma = new PlasmaWithFeedback()
 plasma.on('chemical1', function (c, callback) {
   // do work
   callback(err, {success: true})
@@ -27,7 +26,7 @@ All results from reactions (either callback invoke or returned promise) are deli
 {type: chemical.type + 'reasult', err: Error, result: Object}
 ```
 
-### `plasma.on(pattern, function (c, callback){} [, context])`
+### plasma.on(pattern, function (c, callback){} [, context])
 
 Registers a function to be triggered when chemical emitted in plasma matches given pattern.
 
@@ -38,7 +37,7 @@ Registers a function to be triggered when chemical emitted in plasma matches giv
 * `callback` argument - `function (err, result)`, called to return feedback
 * `context` optional argument - will be used to invoke function reaction within context
 
-### `plasma.on(pattern, function (c){} [, context])`
+### plasma.on(pattern, function (c){} [, context])
 
 Registers a function to be triggered when chemical emitted in plasma matches given pattern.
 
@@ -49,7 +48,7 @@ Registers a function to be triggered when chemical emitted in plasma matches giv
 * `context` optional argument - will be used to invoke function reaction within context
 * `function` reaction returns `Promise` as feedback
 
-### `plasma.emit(c, callback)`
+### plasma.emit(c, callback)
 
 Immediatelly triggers any reactions matching given `c` chemical and provides feedback support via callbacks
 
@@ -58,7 +57,7 @@ Immediatelly triggers any reactions matching given `c` chemical and provides fee
   * as `Object` equals to Chemical
 * `callback` argument - `function (err, result) {}`
 
-### `plasma.emit(c)`
+### plasma.emit(c)
 
 Immediatelly triggers any reactions matching given `c` chemical and provides feedback support via Promise
 
@@ -98,3 +97,7 @@ plasma.once(pattern, function (c, callback) {
 
 plasma.react(c, function callback(err, data) {})
 ```
+
+## Performance notice
+
+This implementation is ~4 times slower than `organic-plasma v0.0.7`, however it provides greater control over plasma's feedback support and is aligned to its pattern in nature.

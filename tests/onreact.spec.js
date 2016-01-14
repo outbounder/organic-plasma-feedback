@@ -1,8 +1,11 @@
-var Plasma = require('../index')(require("organic-plasma"))
+var Plasma = require("organic-plasma")
 
 describe("plasma on / emit feature", function(){
+  var instance
+  beforeEach(function () {
+    instance = require("../index")(new Plasma())
+  })
   it("works with callbacks", function(done){
-    var instance  = new Plasma()
     instance.on("c1", function(c, next){
       expect(c.type).toBe("c1")
       next(null, {success: true})
@@ -13,7 +16,6 @@ describe("plasma on / emit feature", function(){
     })
   })
   it("works with promises", function(done){
-    var instance  = new Plasma()
     instance.on("c1", function(c){
       expect(c.type).toBe("c1")
       return Promise.resolve({success: true})
@@ -24,7 +26,6 @@ describe("plasma on / emit feature", function(){
     })
   })
   it("works with promises flattened", function(done){
-    var instance  = new Plasma()
     instance.on("c1", function(c){
       expect(c.type).toBe("c1")
       c.success1 = true
@@ -42,7 +43,6 @@ describe("plasma on / emit feature", function(){
     })
   })
   it("works with callbacks -> promises", function (done) {
-    var instance  = new Plasma()
     instance.on("c1", function(c, callback){
       expect(c.type).toBe("c1")
       callback(null, {success: true})
@@ -53,7 +53,6 @@ describe("plasma on / emit feature", function(){
     })
   })
   it("works with promises -> callbacks", function (done) {
-    var instance  = new Plasma()
     instance.on("c1", function(c){
       expect(c.type).toBe("c1")
       return Promise.resolve({success: true})
@@ -64,7 +63,6 @@ describe("plasma on / emit feature", function(){
     })
   })
   it("works with callbacks -> promises -> callbacks", function (done) {
-    var instance  = new Plasma()
     instance.on("c2", function(c, callback){
       expect(c.type).toBe("c2")
       c.success2 = true
@@ -83,7 +81,6 @@ describe("plasma on / emit feature", function(){
     })
   })
   it("works with promises -> callbacks -> promises", function (done) {
-    var instance  = new Plasma()
     instance.on("c2", function(c){
       expect(c.type).toBe("c2")
       c.success2 = true
