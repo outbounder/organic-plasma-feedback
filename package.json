@@ -1,0 +1,29 @@
+{
+  "name": "organic-plasma-alchemy",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine-node ./tests"
+  },
+  "author": "Boris Filipov",
+  "license": "MIT",
+  "engines": {
+    "node": ">=4.2.3"
+  },
+  "description": "Provide syntax sugar on top of organic-plasma implementations with feedback support.",
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {
+    "jasmine-node": "^1.14.5",
+    "organic-plasma": "^0.0.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/outbounder/organic-plasma-alchemy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/outbounder/organic-plasma-alchemy/issues"
+  },
+  "homepage": "https://github.com/outbounder/organic-plasma-alchemy#readme"
+}
