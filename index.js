@@ -53,23 +53,18 @@ module.exports = function (plasma) {
       chemical = {type: chemical}
 
     if (callback) {
-      plasma.on.call(plasma, chemical.type+'result', function (c) {
+      plasma.once.call(plasma, chemical.type+'result', function (c) {
         callback(c.err, c.result)
       }, undefined, true)
       plasma.emit.call(plasma, chemical)
     } else {
-      var promiseResolve
-      var promiseReject
-      var p = new Promise(function (resolve, reject) {
-        promiseResolve = resolve
-        promiseReject = reject
+      return new Promise(function (promiseResolve, promiseReject) {
+        plasma.once.call(plasma, chemical.type+'result', function (c) {
+          if (c.err) return promiseReject(c.err)
+          promiseResolve(c.result)
+        }, undefined, true)
+        plasma.emit.call(plasma, chemical)
       })
-      plasma.on.call(plasma, chemical.type+'result', function (c) {
-        if (c.err) return promiseReject(c.err)
-        promiseResolve(c.result)
-      }, undefined, true)
-      plasma.emit.call(plasma, chemical)
-      return p
     }
   }
 
