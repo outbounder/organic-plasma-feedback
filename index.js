@@ -16,7 +16,7 @@ module.exports = function (plasma) {
         var chemicalType = c.type
         handler.call(context, c, function (err, result) {
           plasma.emit.call(plasma, {
-            type: chemicalType+'result',
+            type: chemicalType + '-result-' + c.$feedback_timestamp,
             err: err,
             result: result
           })
@@ -29,14 +29,14 @@ module.exports = function (plasma) {
         if (promise instanceof Promise) {
           promise.then(function (result) {
             plasma.emit.call(plasma, {
-              type: chemicalType+'result',
+              type: chemicalType + '-result-' + c.$feedback_timestamp,
               err: null,
               result: result
             })
           })
           promise.catch(function (err) {
             plasma.emit.call(plasma, {
-              type: chemicalType+'result',
+              type: chemicalType + '-result-' + c.$feedback_timestamp,
               err: err,
               result: null
             })
@@ -52,14 +52,16 @@ module.exports = function (plasma) {
     if(typeof chemical == "string")
       chemical = {type: chemical}
 
+    chemical.$feedback_timestamp = (new Date()).getTime()
+
     if (callback) {
-      plasma.once.call(plasma, chemical.type+'result', function (c) {
+      plasma.once.call(plasma, chemical.type + '-result-' + chemical.$feedback_timestamp, function (c) {
         callback(c.err, c.result)
       }, undefined, true)
       plasma.emit.call(plasma, chemical)
     } else {
       return new Promise(function (promiseResolve, promiseReject) {
-        plasma.once.call(plasma, chemical.type+'result', function (c) {
+        plasma.once.call(plasma, chemical.type + '-result-' + chemical.$feedback_timestamp, function (c) {
           if (c.err) return promiseReject(c.err)
           promiseResolve(c.result)
         }, undefined, true)

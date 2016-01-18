@@ -30,6 +30,7 @@ All results from reactions (either callback invoke or returned promise) are deli
 
 Registers a function to be triggered when chemical emitted in plasma matches given pattern.
 
+___arguments___
 * `pattern` argument
   * as `String` matching `Chemical.type` property
   * as `Object` matching one or many properties of `Chemical`
@@ -41,6 +42,7 @@ Registers a function to be triggered when chemical emitted in plasma matches giv
 
 Registers a function to be triggered when chemical emitted in plasma matches given pattern.
 
+___arguments___
 * `pattern` argument
   * as `String` matching `Chemical.type` property
   * as `Object` matching one or many properties of `Chemical`
@@ -52,6 +54,7 @@ Registers a function to be triggered when chemical emitted in plasma matches giv
 
 Immediatelly triggers any reactions matching given `c` chemical and provides feedback support via callbacks
 
+___arguments___
 * `c` argument
   * as `String` equals to `{ type: String, ... }` Chemical
   * as `Object` equals to Chemical
@@ -61,6 +64,7 @@ Immediatelly triggers any reactions matching given `c` chemical and provides fee
 
 Immediatelly triggers any reactions matching given `c` chemical and provides feedback support via Promise
 
+___arguments___
 * `c` argument
   * as `String` equals to `{ type: String, ... }` Chemical
   * as `Object` equals to Chemical
@@ -100,4 +104,4 @@ plasma.react(c, function callback(err, data) {})
 
 ## Performance notice
 
-This implementation is ~4 times slower than `organic-plasma v0.0.7`, however it provides greater control over plasma's feedback support and is aligned to its pattern in nature.
+This implementation is ~8 times slower than `organic-plasma v0.0.7`, however it provides 8 times greater control over plasma's feedback support and is aligned to its pattern in nature.
