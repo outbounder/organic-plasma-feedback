@@ -23,7 +23,7 @@ plasma.emit('chemical1', function (err, result) {
 All results from reactions (either callback invoke or returned promise) are delivered as chemicals via plasma having the following signature:
 
 ```
-{type: chemical.type + 'reasult', err: Error, result: Object}
+{type: chemical.type + '-result', err: Error, result: Object, $feedback_timestamp: Date}
 ```
 
 ### plasma.on(pattern, function (c, callback){} [, context])
