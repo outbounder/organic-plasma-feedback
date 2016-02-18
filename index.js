@@ -14,7 +14,7 @@ module.exports = function (plasma) {
     if (handler.length === 2) { // has callback
       reactionFn = function (c) {
         var chemicalType = c.type
-        handler.call(context, c, function (err, result) {
+        return handler.call(context, c, function (err, result) {
           plasma.emit.call(plasma, {
             type: chemicalType + '-result',
             $feedback_timestamp: c.$feedback_timestamp,
@@ -26,9 +26,9 @@ module.exports = function (plasma) {
     } else {
       reactionFn = function (c) {
         var chemicalType = c.type
-        var promise = handler.call(context, c)
-        if (promise instanceof Promise) {
-          promise.then(function (result) {
+        var result = handler.call(context, c)
+        if (result instanceof Promise) {
+          result.then(function (result) {
             plasma.emit.call(plasma, {
               type: chemicalType + '-result',
               $feedback_timestamp: c.$feedback_timestamp,
@@ -36,7 +36,7 @@ module.exports = function (plasma) {
               result: result
             })
           })
-          promise.catch(function (err) {
+          result.catch(function (err) {
             plasma.emit.call(plasma, {
               type: chemicalType + '-result',
               $feedback_timestamp: c.$feedback_timestamp,
@@ -45,17 +45,25 @@ module.exports = function (plasma) {
             })
           })
         }
+        return result
       }
     }
 
     plasma.on.call(plasma, pattern, reactionFn, undefined, once)
   }
 
-  plasmaWithFeedback.emit = function (chemical, callback) {
-    if(typeof chemical == "string")
-      chemical = {type: chemical}
+  plasmaWithFeedback.emit = function (input, callback) {
+    var chemical
+    if(typeof input == "string") {
+      chemical = {type: input}
+    } else {
+      chemical = {}
+      for (var key in input) {
+        chemical[key] = input[key]
+      }
+    }
 
-    chemical.$feedback_timestamp = (new Date()).getTime()
+    chemical.$feedback_timestamp = (new Date()).getTime() + Math.random()
 
     if (callback) {
       plasma.once.call(plasma, {
@@ -63,7 +71,7 @@ module.exports = function (plasma) {
         $feedback_timestamp: chemical.$feedback_timestamp
       }, function (c) {
         callback(c.err, c.result)
-      }, undefined, true)
+      })
       plasma.emit.call(plasma, chemical)
     } else {
       return new Promise(function (promiseResolve, promiseReject) {
@@ -73,7 +81,7 @@ module.exports = function (plasma) {
         }, function (c) {
           if (c.err) return promiseReject(c.err)
           promiseResolve(c.result)
-        }, undefined, true)
+        })
         plasma.emit.call(plasma, chemical)
       })
     }

@@ -12,9 +12,6 @@
     "node": ">=4.2.3"
   },
   "description": "Provide syntax sugar on top of organic-plasma implementations with feedback support.",
-  "directories": {
-    "test": "tests"
-  },
   "devDependencies": {
     "jasmine-node": "^1.14.5",
     "organic-plasma": "1.0.0",
