@@ -75,6 +75,11 @@ ___arguments___
   * as `Object` - must follow the `Chemical` structure
 * `callback` - `Function` - `function (err, result) {}`
 
+```
+plasma.emit({ type: 'test' }, function (err, result) {})
+plasma.emit('test', function (err, result) {})
+```
+
 ### plasma.emit(c) - With promises
 
 Immediatelly triggers any reactions matching given `c` chemical and provides feedback support via Promise.
@@ -85,6 +90,10 @@ ___arguments___
   * as `Object` - must follow the `Chemical` structure
 * `returns` Promise
 
+```
+plasma.emit({ type: 'test' }).then(function (result) {}).catch(function (err) {})
+plasma.emit('test').then(function (result) {}).catch(function (err) {})
+```
 
 ### Callbacks and promises modes support
 
@@ -124,8 +133,8 @@ plasma.emit(c, function callback(err, data) {})
 plasma.on(pattern, function(c){
   return Promise.resolve({ success: true })
 })
-plasma.once(pattern, function(c){
-  return Promise.resolve({ success: true })
+plasma.once(pattern, function(c, callback){
+  callback(err, { success: true })
 })
 
 plasma.emit(pattern, function (err, data) {})
@@ -136,7 +145,7 @@ plasma.on(pattern, function (c, callback) {
   callback(err, data)
 })
 plasma.once(pattern, function (c, callback) {
-  callback(err, data)
+  return Promise.resolve({ success: true })
 })
 plasma.emit(c)
   .then(function (results) {})
@@ -146,4 +155,4 @@ plasma.emit(c)
 
 ## Performance notice
 
-This implementation is ~8 times slower than [`organic-plasma v0.0.7`](https://github.com/outbounder/organic-plasma/tree/f2cd53b0eb60ecc9c10d53eb455f182e9bf5a484), however it provides 8 times greater control over plasma's feedback support and is aligned to its pattern in nature.
+This implementation is ~6 times slower than [`organic-plasma v0.0.7`](https://github.com/outbounder/organic-plasma/tree/f2cd53b0eb60ecc9c10d53eb455f182e9bf5a484), however it provides greater control over plasma's feedback support and is aligned to its pattern in nature.

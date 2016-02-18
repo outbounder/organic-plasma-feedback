@@ -5,7 +5,7 @@ var async = require("async")
 plasma.on("test-chemical", function (c, next) {
   console.log("worker 1 received chemical @ " + new Date().getTime())
   next(null, { worker: 1 })
-  return true
+  return true // this will prevent any follow up handlers to be executed matching given chemical
 })
 
 plasma.on("test-chemical", function (c, next) {
@@ -37,4 +37,3 @@ async.timesSeries(3, function(n, next) {
     next()
   })
 })
-
