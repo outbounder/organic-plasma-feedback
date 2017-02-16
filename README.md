@@ -1,4 +1,4 @@
-# organic-plasma-feedback
+# organic-plasma-feedback v2.0.0
 
 Provide syntax sugar on top of [organic-plasma](https://github.com/outbounder/organic-plasma) implementations with feedback support.
 
@@ -20,13 +20,13 @@ plasma.emit('chemical1', function (err, result) {
 
 ## API
 
-All results from reactions (either callback invoke or returned promise) are delivered as chemicals via plasma having the following signature:
+All results from reactions for callback invoke are delivered as chemicals via plasma having the following signature:
 
 ```
 {
   type: chemical.type + '-result',
   err: Error,
-  result: Object,
+  result: Primitive,
   $feedback_timestamp: Date
 }
 ```
@@ -53,21 +53,9 @@ plasma.on("test-chemical", function (c, callback){
 }, undefined, true)
 ```
 
-### Promise usage - plasma.on(pattern, function (c){} [, context])
+### plasma.emit(c, callback)
 
-Registers a function to be triggered when a chemical emitted in the plasma matches the given pattern. The function must return a Promise
-
-```
-plasma.on("test-chemical", function (c){
-  // do some processing with `c`
-  return Promise.resolve({success: true})
-}, undefined, true)
-```
-
-
-### plasma.emit(c, callback) - With callbacks
-
-Immediatelly triggers any reactions matching the given `c` chemical and provides feedback support via callbacks.
+Immediately triggers any reactions matching the given `c` chemical and provides feedback support via callbacks.
 
 ___arguments___
 * `c` -  `Object` - to be emmited with the `Chemical` structure
@@ -80,79 +68,41 @@ plasma.emit({ type: 'test' }, function (err, result) {})
 plasma.emit('test', function (err, result) {})
 ```
 
-### plasma.emit(c) - With promises
+### Feedback examples
 
-Immediatelly triggers any reactions matching given `c` chemical and provides feedback support via Promise.
-
-___arguments___
-* `c` -  `Object` - to be emmited with the `Chemical` structure
-  * as `String` - equals to `{ type: String, ... }` Chemical
-  * as `Object` - must follow the `Chemical` structure
-* `returns` Promise
+#### emit and receive callback from the first who respond
 
 ```
-plasma.emit({ type: 'test' }).then(function (result) {}).catch(function (err) {})
-plasma.emit('test').then(function (result) {}).catch(function (err) {})
-```
-
-### Callbacks and promises modes support
-
-The modes are supported separately or mixed.
-
-#### Promises mode
-
-```
-plasma.on(pattern, function (c) {
-  return Promise
+plasma.on({type: 'c1'}, function (c, callback) {
+  callback(err, 'result1')
 })
-plasma.once(pattern, function (c) {
-  return Promise
+plasma.once({type: 'c1'}, function (c, callback) {
+  callback(err, 'result2')
 })
 
-plasma.emit(c)
-  .then(function (results) {})
-  .catch(function (err) {})
-```
-
-#### Callbacks mode
-
-```
-plasma.on(pattern, function (c, callback) {
-  callback(err, data)
+var c = {type: 'c1'}
+plasma.emit(c, function callback (err, result) {
+  // callback will be invoked just once with result === 'result1'
 })
-plasma.once(pattern, function (c, callback) {
-  callback(err, data)
-})
-
-plasma.emit(c, function callback(err, data) {})
 ```
 
-#### Mixed mode
+#### emit and receive callback invocation from all who respond
 
 ```
-plasma.on(pattern, function(c){
-  return Promise.resolve({ success: true })
+plasma.on({type: 'c1'}, function (c, callback) {
+  callback(null, 'result1')
 })
-plasma.once(pattern, function(c, callback){
-  callback(err, { success: true })
+plasma.on({type: 'c1'}, function (c, callback) {
+  callback(null, 'result2')
 })
 
-plasma.emit(pattern, function (err, data) {})
-```
-or
-```
-plasma.on(pattern, function (c, callback) {
-  callback(err, data)
+var c = {type: 'c1', $feedback_timestamp: 'unique-timestamp'}
+plasma.emit(c, function callback (err, result) {
+  // 1st callback invoke result === 'result1'
+  // 2nd callback invoke result === 'result2'
 })
-plasma.once(pattern, function (c, callback) {
-  return Promise.resolve({ success: true })
-})
-plasma.emit(c)
-  .then(function (results) {})
-  .catch(function (err) {})
 ```
 
-
-## Performance notice
+### Performance notice
 
 This implementation is ~6 times slower than [`organic-plasma v0.0.7`](https://github.com/outbounder/organic-plasma/tree/f2cd53b0eb60ecc9c10d53eb455f182e9bf5a484), however it provides greater control over plasma's feedback support and is aligned to its pattern in nature.

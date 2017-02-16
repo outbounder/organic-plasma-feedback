@@ -1,43 +1,24 @@
-var Plasma = require("organic-plasma")
-var plasma  = require("../index")(new Plasma())
+var Plasma = require('organic-plasma')
+var plasma = require('../index')(new Plasma())
 
 var testChemical = {
-  type: "test-chemical",
+  type: 'test-chemical',
   data: {
     test: true
   }
 }
 
-plasma.on("test-chemical", function (c, next) {
-  console.log("reacted on " + JSON.stringify(c))
+plasma.on('test-chemical', function (c, next) {
+  console.log('reacted on ' + JSON.stringify(c))
   next(null, { success: true })
 })
 
-plasma.on("test-chemical-result", function (c) {
-  console.log("intercepting feedback from callback", c)
+plasma.on('test-chemical-result', function (c) {
+  console.log('intercepting feedback from callback', c)
 })
 
-console.log("emmiting " + JSON.stringify(testChemical))
-plasma.emit(testChemical, function(err, result) {
-  console.log("received feedback", JSON.stringify(result))
-})
-
-var testChemical = {
-  type: "test-chemical2",
-  data: {
-    test: true
-  }
-}
-
-plasma.on("test-chemical2", function (c) {
-  console.log("reacted on " + JSON.stringify(c))
-  return Promise.resolve({ success: true })
-})
-plasma.on("test-chemical2-result", function (c) {
-  console.log("intercepting feedback from Promise", c)
-})
-
-console.log("emmiting " + JSON.stringify(testChemical))
-plasma.emit(testChemical, function(err, result) {
-  console.log("received feedback", JSON.stringify(result))
+console.log('emmiting ' + JSON.stringify(testChemical))
+plasma.emit(testChemical, function (err, result) {
+  if (err) console.error(err)
+  console.log('received feedback', JSON.stringify(result))
 })

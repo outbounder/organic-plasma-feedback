@@ -1,21 +1,33 @@
-module.exports = function (plasma) {
-  var plasmaWithFeedback = {}
-  for (var key in plasma)
-    plasmaWithFeedback[key] = plasma[key]
+var plasmaWithFeedbackVersion = require('./package.json').version
+module.exports = function (originalPlasma) {
+  if (originalPlasma.$plasmaWithFeedbackVersion) {
+    if (originalPlasma.$plasmaWithFeedbackVersion !== plasmaWithFeedbackVersion) {
+      console.warn('given plasma already has feedback but with different version',
+        originalPlasma.$plasmaWithFeedbackVersion, '<!-->', plasmaWithFeedbackVersion)
+    }
+    return originalPlasma
+  }
+  var plasmaWithFeedback = {
+    $plasmaWithFeedbackVersion: plasmaWithFeedbackVersion
+  }
+  for (var key in originalPlasma) {
+    plasmaWithFeedback[key] = originalPlasma[key]
+  }
 
   plasmaWithFeedback.on = function (pattern, handler, context, once) {
-    if(Array.isArray(pattern)) {
-      return plasma.on.call(plasma, pattern, handler, context, once)
+    if (Array.isArray(pattern)) {
+      return originalPlasma.on(pattern, handler, context, once)
     }
-    if (typeof pattern == "string")
+    if (typeof pattern === 'string') {
       pattern = {type: pattern}
+    }
 
     var reactionFn = handler
     if (handler.length === 2) { // has callback
       reactionFn = function (c) {
         var chemicalType = c.type
         return handler.call(context, c, function (err, result) {
-          plasma.emit.call(plasma, {
+          originalPlasma.emit({
             type: chemicalType + '-result',
             $feedback_timestamp: c.$feedback_timestamp,
             err: err,
@@ -23,38 +35,14 @@ module.exports = function (plasma) {
           })
         })
       }
-    } else {
-      reactionFn = function (c) {
-        var chemicalType = c.type
-        var result = handler.call(context, c)
-        if (result instanceof Promise) {
-          result.then(function (result) {
-            plasma.emit.call(plasma, {
-              type: chemicalType + '-result',
-              $feedback_timestamp: c.$feedback_timestamp,
-              err: null,
-              result: result
-            })
-          })
-          result.catch(function (err) {
-            plasma.emit.call(plasma, {
-              type: chemicalType + '-result',
-              $feedback_timestamp: c.$feedback_timestamp,
-              err: err,
-              result: null
-            })
-          })
-        }
-        return result
-      }
     }
 
-    plasma.on.call(plasma, pattern, reactionFn, undefined, once)
+    originalPlasma.on(pattern, reactionFn, context, once)
   }
 
   plasmaWithFeedback.emit = function (input, callback) {
     var chemical
-    if(typeof input == "string") {
+    if (typeof input === 'string') {
       chemical = {type: input}
     } else {
       chemical = {}
@@ -63,27 +51,26 @@ module.exports = function (plasma) {
       }
     }
 
-    chemical.$feedback_timestamp = (new Date()).getTime() + Math.random()
-
     if (callback) {
-      plasma.once.call(plasma, {
-        type: chemical.type + '-result',
-        $feedback_timestamp: chemical.$feedback_timestamp
-      }, function (c) {
-        callback(c.err, c.result)
-      })
-      plasma.emit.call(plasma, chemical)
-    } else {
-      return new Promise(function (promiseResolve, promiseReject) {
-        plasma.once.call(plasma, {
+      if (!chemical.$feedback_timestamp) {
+        chemical.$feedback_timestamp = (new Date()).getTime() + Math.random()
+        originalPlasma.once({
           type: chemical.type + '-result',
           $feedback_timestamp: chemical.$feedback_timestamp
         }, function (c) {
-          if (c.err) return promiseReject(c.err)
-          promiseResolve(c.result)
+          callback(c.err, c.result)
         })
-        plasma.emit.call(plasma, chemical)
-      })
+      } else {
+        originalPlasma.on({
+          type: chemical.type + '-result',
+          $feedback_timestamp: chemical.$feedback_timestamp
+        }, function (c) {
+          callback(c.err, c.result)
+        })
+      }
+      originalPlasma.emit(chemical)
+    } else {
+      originalPlasma.emit(chemical)
     }
   }
 

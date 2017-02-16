@@ -3,13 +3,14 @@ var Plasma = require('organic-plasma')
 describe('react', function () {
   var instance
   beforeEach(function () {
-    instance = require("../index")(new Plasma())
+    instance = require('../index')(new Plasma())
   })
   it('works with callbacks', function (done) {
     instance.on('do work', function (c, next) {
       next(null, c)
     })
     instance.emit('do work', function (err, result) {
+      if (err) return done(err)
       expect(result.type).toBe('do work')
       done()
     })
