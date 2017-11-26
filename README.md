@@ -1,6 +1,12 @@
 # organic-plasma-feedback v2.0.0
 
-Provide syntax sugar on top of [organic-plasma](https://github.com/outbounder/organic-plasma) implementations with feedback support.
+Provide syntax sugar on top of `organic-plasma v1.x.x` implementations with feedback support.
+
+## DEPRECATED
+
+### This module is deprecated. Use [organic-plasma v2.x.x](https://github.com/outbounder/organic-plasma) instead.
+
+----
 
 ## usage
 
